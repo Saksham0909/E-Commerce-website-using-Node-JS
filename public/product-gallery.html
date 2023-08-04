@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cyber bazaar</title>
+
+    <!-- ------------------------------------------------------ Style sheets ------------------------------------------------------ -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style/style.css">
+
+    <!-- ------------------------------------------------------ Scripts ------------------------------------------------------ -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="script/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+    <!-- ------------------------------------------------------ AngularJS starts ------------------------------------------------------ -->
+    <script>
+        var module = angular.module("myModule", []);
+        module.controller("myController", function ($scope, $http) {
+
+            // ------------------------------------------------ Fetch products function ------------------------------------------------
+            $scope.fetchProducts = function () {
+                var keyword = localStorage.getItem("keywordSearched");
+                var url = "/fetch-products-from-keyword?keyword=" + keyword;
+                $http.get(url).then(done, fail);
+                function done(response) {
+                    $scope.jsonProductsArray = response.data;
+                }
+                function fail(response) {
+                    alert(response.data);
+                }
+            }
+
+            // ------------------------------------------------ Do search function ------------------------------------------------
+            $scope.doSearch = function(){
+                localStorage.setItem("keywordSearched", $scope.txtSearch);
+                $scope.fetchProducts();
+            }
+
+            // ------------------------------------------------ Open selected product page function ------------------------------------------------
+            $scope.openProductPage = function (index) {
+                localStorage.setItem("productSelected", $scope.jsonProductsArray[index].id);
+                location.href = "product-page.html"
+            }
+        });
+    </script>
+
+    <!-- ------------------------------------------------------ AngularJS ends ------------------------------------------------------ -->
+</head>
+
+<body ng-app="myModule" ng-controller="myController" ng-init="fetchProducts();">
+    <!-- ------------------------------------------------------ Navbar ------------------------------------------------------ -->
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid mx-2">
+
+            <a class="navbar-brand" href="index.html">
+                <img src="pics/logo.png" class="d-inline-block align-text-top">
+                Cyber bazaar
+            </a>
+
+
+            <div class="col-md-5 mt-3">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" ng-model="txtSearch">
+                    <button class="btn btn-secondary" type="button" id="button-addon2" ng-click="doSearch();"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+
+            <form class="d-flex">
+                <a href = "cart.html" class="btn btn-secondary">Cart</a>
+            </form>
+
+        </div>
+    </nav>
+
+    <!-- ------------------------------------------------------ Product cards ------------------------------------------------------ -->
+    <div class="container">
+
+        <div class="row mb-3">
+            <h1 class="text-center">Products available</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4" ng-repeat="obj in jsonProductsArray">
+                <div class="card" ng-click="openProductPage($index);">
+                    <img src="uploads/{{obj.productpicname}}" class="card-img-top" alt="product image">
+                    <div class="card-body">
+                        <h5 class="card-title">{{obj.brand}}</h5>
+                        <p class="card-text">{{obj.modelname}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

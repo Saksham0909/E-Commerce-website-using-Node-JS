@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cyber bazaar</title>
+
+    <!-- ------------------------------------------------------ Style sheets ------------------------------------------------------ -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+    <link rel="stylesheet" href="style/style.css">
+
+    <!-- ------------------------------------------------------ Scripts ------------------------------------------------------ -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="script/angular.min.js"></script>
+
+    <!-- ------------------------------------------------------ AngularJS starts ------------------------------------------------------ -->
+    <script>
+        var module = angular.module("myModule", []);
+        module.controller("myController", function ($scope, $http) {
+
+            // ------------------------------------------------ Fetch products function ------------------------------------------------
+            $scope.fetchCart = function () {
+                var useremail = localStorage.getItem("activeuser");
+                var url = "/fetch-cart?useremail=" + useremail;
+                $http.get(url).then(done, fail);
+                function done(response) {
+                    $scope.cartArray = response.data;
+                }
+                function fail(response) {
+                    alert(response.data);
+                }
+            }
+
+            // ------------------------------------------------ Remove product function ------------------------------------------------
+            $scope.doRemove = function (id) {
+                if (confirm("Do you really want to remove this product from your cart !!!") == false)
+                    return;
+                var url = "/remove-product?id=" + id;
+                $http.get(url).then(done, fail);
+                function done(response) {
+                    console.log(response.data);
+                    $scope.fetchCart();
+                }
+                function fail(response) {
+                    alert(response.data);
+                }
+            }
+
+            // ------------------------------------------------ Buy product function ------------------------------------------------
+            $scope.doBuy = function (id) {
+                if (confirm("Do you really want to buy this product !!!") == false)
+                    return;
+                var email = localStorage.getItem("activeuser");
+                var url = "/buy-product?id=" + id + "&email=" + email;
+                $http.get(url).then(done, fail);
+                function done(response) {
+                    alert(response.data);
+                    $scope.fetchCart();
+                }
+                function fail(response) {
+                    alert(response.data);
+                }
+            }
+
+            // ------------------------------------------------ Open selected product page function ------------------------------------------------
+            $scope.openProductPage = function (index) {
+                localStorage.setItem("productSelected", $scope.cartArray[index].id);
+                location.href = "product-page.html"
+            }
+        });
+    </script>
+
+    <!-- ------------------------------------------------------ AngularJS ends ------------------------------------------------------ -->
+</head>
+
+<body ng-app="myModule" ng-controller="myController" class="px-4" ng-init="fetchCart();">
+    <!-- ------------------------------------------------------ Navbar ------------------------------------------------------ -->
+    <nav class="navbar bg-body-tertiary mb-4">
+        <div class="container-fluid px-3 py-2">
+            <a class="navbar-brand" href="index.html">
+                <img src="pics/logo.png" class="d-inline-block align-text-top me-2">
+                Cyber bazaar
+            </a>
+        </div>
+    </nav>
+
+    <!-- ------------------------------------------------------ Cart cards ------------------------------------------------------ -->
+    <div class="container">
+
+        <div class="row mb-3">
+            <h1 class="text-center">Cart</h1>
+        </div>
+
+        <div class="row" ng-repeat="obj in cartArray">
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="uploads/{{obj.productpicname}}" class="img-fluid mx-2 my-4"
+                            alt="{{obj.productpicname}}"  ng-click="openProductPage($index);">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{obj.modelname}}</h5>
+                            <p class="card-text">{{obj.brand}}</p>
+                            <p class="card-text">{{obj.price}}</p>
+                            <button class="btn btn-secondary" ng-click="doRemove(obj.id);">Remove</button>
+                            <button class="btn btn-secondary ms-2" ng-click="doBuy(obj.id);">Buy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

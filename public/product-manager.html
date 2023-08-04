@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cyber bazaar</title>
+
+    <!-- ------------------------------------------------------ Style sheets ------------------------------------------------------ -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+    <link rel="stylesheet" href="style/style.css">
+
+    <!-- ------------------------------------------------------ Scripts ------------------------------------------------------ -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="script/angular.min.js"></script>
+
+    <!-- ------------------------------------------------------ JQuery starts ------------------------------------------------------ -->
+    <script>
+        $(document).ready(function () {
+            // ------------------------------------------------ Logging in user function ------------------------------------------------
+            function setActiveUser() {
+                if (localStorage.getItem("activeuser") == null) {
+                    location.href = "index.html";
+                    return;
+                }
+            }
+            setActiveUser();
+        });
+    </script>
+
+    <!-- ------------------------------------------------------ JQuery ends ------------------------------------------------------ -->
+
+    <!-- ------------------------------------------------------ AngularJS starts ------------------------------------------------------ -->
+    <script>
+        var module = angular.module("myModule", []);
+        module.controller("myController", function ($scope, $http) {
+
+            // ------------------------------------------------ Fetch products function ------------------------------------------------
+            $scope.fetchProducts = function () {
+                var email = localStorage.getItem("activeuser");
+                var url = "/fetch-products?email=" + email;
+                $http.get(url).then(done, fail);
+                function done(response) {
+                    $scope.productDataArray = response.data;
+                }
+                function fail(response) {
+                    alert(response.data);
+                }
+            }
+
+            // ------------------------------------------------ Unlist products function ------------------------------------------------
+            $scope.doUnlist = function (id) {
+                if (confirm("Do you really want to unlist this product !!!") == false)
+                    return;
+                var url = "/unlist-products?id=" + id;
+                $http.get(url).then(done, fail);
+                function done(response) {
+                    console.log(response.data);
+                    $scope.fetchProducts();
+                }
+                function fail(response) {
+                    alert(response.data);
+                }
+            }
+        });
+    </script>
+
+    <!-- ------------------------------------------------------ AngularJS ends ------------------------------------------------------ -->
+</head>
+
+<body ng-app="myModule" ng-controller="myController" class = "px-4" ng-init = "fetchProducts();">
+    <!-- ------------------------------------------------------ Navbar ------------------------------------------------------ -->
+    <nav class="navbar bg-body-tertiary mb-4">
+        <div class="container-fluid px-3 py-2">
+            <a class="navbar-brand" href="index.html">
+                <img src="pics/logo.png" class="d-inline-block align-text-top me-2">
+                Cyber bazaar
+            </a>
+        </div>
+    </nav>
+
+    <!-- ------------------------------------------------------ Available products table ------------------------------------------------------ -->
+        <div class="row mb-3">
+            <h1 class="text-center">Product manager</h1>
+        </div>
+
+        <table class="table table-light table-striped text-center">
+            <tr>
+                <th>S No.</th>
+                <th>Model name</th>
+                <th>Brand</th>
+                <th>Price</th>
+                <th>Keyword</th>
+                <th>Image</th>
+                <th>Operations</th>
+            </tr>
+            <tr ng-repeat="obj in productDataArray">
+                <td>{{$index+1}}</td>
+                <td>{{obj.modelname}}</td>
+                <td>{{obj.brand}}</td>
+                <td>{{obj.price}}</td>
+                <td>{{obj.keyword}}</td>
+                <td><img src="uploads/{{obj.productpicname}}" height="100px" width="100px"></td>
+                <td>
+                    <button class="btn btn-primary ms-3" type="button" ng-click="doUnlist(obj.id);">Unlist</button>
+                </td>
+            </tr>
+        </table>
+
+</body>
+
+</html>

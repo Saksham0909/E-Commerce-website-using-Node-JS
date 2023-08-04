@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cyber bazaar</title>
+
+    <!-- -------------------------------------------------------- Stylesheets -------------------------------------------------------- -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+    <link rel="stylesheet" href="style/style.css">
+
+    <!-- -------------------------------------------------------- Scripts -------------------------------------------------------- -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="script/angular.min.js"></script>
+
+    <!-- ------------------------------------------------------ JQuery starts ------------------------------------------------------ -->
+    <script>
+        $(document).ready(function () {
+            // ------------------------------------------------ Checking logged function ------------------------------------------------
+            function checkActiveUser() {
+                if (localStorage.getItem("activeuser") == null) {
+                    $("#sellerLogin").addClass("hidebtn");
+                    $("#logoutbtn").addClass("hidebtn");
+                    $("#signupbtn").removeClass("hidebtn");
+                    $("#loginbtn").removeClass("hidebtn");
+                } else {
+                    $("#signupbtn").addClass("hidebtn");
+                    $("#loginbtn").addClass("hidebtn");
+                    $("#sellerLogin").removeClass("hidebtn");
+                    $("#logoutbtn").removeClass("hidebtn");
+                }
+            }
+
+            checkActiveUser();
+
+            // ------------------------------------------------ Signup email validation function ------------------------------------------------
+            $("#signuptxtemail").blur(function () {
+                var email = $(this).val();
+
+                var r = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+                if (r.test(email) == true) {
+                    var obj = {
+                        type: "get",
+                        url: "/signup-chk-email",
+                        data: {
+                            emailentered: email
+                        }
+                    }
+
+                    $.ajax(obj).done(function (resp) {
+                        $("#signuperremail").html(resp);
+                        $("#signuperremail").addClass("validExp").removeClass("invalidExp");
+                    }).fail(function (err) {
+                        $("#signuperremail").html(err);
+                        $("#signuperremail").addClass("invalidExp").removeClass("validExp");
+                    });
+                } else {
+                    $("#signuperremail").html("Please enter valid email id");
+                    $("#signuperremail").addClass("invalidExp").removeClass("validExp");
+                }
+            });
+
+            // ------------------------------------------------ Signup password validation function ------------------------------------------------
+            $("#signuptxtpwd").blur(function () {
+                var pwd = $(this).val();
+                var r =
+                    /(?=^.{8,}$)(?=.*\d)(?=.*[!@#$%^&*]+)(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
+                if (r.test(pwd) == true) {
+                    $("#signuperrpwd").html("Valid password");
+                    $("#signuperrpwd").addClass("validExp").removeClass("invalidExp");
+                } else {
+                    $("#signuperrpwd").html("Please enter a strong password");
+                    $("#signuperrpwd").addClass("invalidExp").removeClass("validExp");
+                }
+            });
+
+            // ------------------------------------------------ Sign up show password function ------------------------------------------------
+            var signupflag = true;
+
+            $("#signupshow").click(function () {
+                if (signupflag == false) {
+                    $("#signupeye").addClass("fa-eye").removeClass("fa-eye-slash");
+                    $("#signuptxtpwd").prop("type", "password");
+                    signupflag = true;
+                } else {
+                    $("#signupeye").removeClass("fa-eye").addClass("fa-eye-slash");
+                    $("#signuptxtpwd").prop("type", "text");
+                    signupflag = false;
+                }
+            });
+
+            // ------------------------------------------------ Login show password function ------------------------------------------------
+            var loginflag = true;
+
+            $("#loginshow").click(function () {
+                if (loginflag == false) {
+                    $("#logineye").addClass("fa-eye").removeClass("fa-eye-slash");
+                    $("#logintxtpwd").prop("type", "password");
+                    loginflag = true;
+                } else {
+                    $("#logineye").removeClass("fa-eye").addClass("fa-eye-slash");
+                    $("#logintxtpwd").prop("type", "text");
+                    loginflag = false;
+                }
+            });
+
+            // ------------------------------------------------ Login email validation function ------------------------------------------------
+            $("#logintxtemail").blur(function () {
+                var email = $(this).val();
+                var r = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+                if (r.test(email) == true) {
+                    $("#loginerremail").html("Valid email");
+                    $("#loginerremail").addClass("validExp").removeClass("invalidExp");
+                } else {
+                    $("#loginerremail").html("Please enter valid email id");
+                    $("#loginerremail").addClass("invalidExp").removeClass("validExp");
+                }
+            });
+
+            // ------------------------------------------------ Do signup function ------------------------------------------------
+            $("#dosignup").click(function () {
+                var email = $("#signuptxtemail").val();
+                var pwd = $("#signuptxtpwd").val();
+                var type = $("#signuptxttype").val();
+                if ($("#signuperremail").css("background-color") == "rgb(144, 238, 144)" && $("#signuperrpwd").css("background-color") == "rgb(144, 238, 144)") {
+                    var obj = {
+                        type: "get",
+                        url: "/dosignup",
+                        data: {
+                            emailentered: email,
+                            pwdentered: pwd,
+                        }
+                    }
+
+                    $.ajax(obj).done(function (resp) {
+                        localStorage.setItem("activeuser", $("#signuptxtemail").val());
+                        alert(resp);
+                        checkActiveUser();
+                    }).fail(function (err) {
+                        alert(err);
+                    });
+                } else {
+                    alert("Enter valid details");
+                }
+            });
+
+            // ------------------------------------------------ Do login function ------------------------------------------------
+            $("#dologin").click(function () {
+                var email = $("#logintxtemail").val();
+                var pwd = $("#logintxtpwd").val();
+
+                if ($("#loginerremail").css("background-color") == "rgb(144, 238, 144)") {
+                    var obj = {
+                        type: "get",
+                        url: "/dologin",
+                        data: {
+                            emailentered: email,
+                            pwdentered: pwd
+                        }
+                    }
+
+                    $.ajax(obj).done(function (resp) {
+                        localStorage.setItem("activeuser", $("#logintxtemail").val());
+                        alert(resp);
+                        checkActiveUser();
+                    }).fail(function (err) {
+                        alert(err);
+                    });
+                } else {
+                    alert("Enter valid details");
+                }
+            });
+
+            // ------------------------------------------------ Become seller function ------------------------------------------------
+            $("#sellerLogin").click(function () {
+                if (localStorage.getItem("activeuser") == undefined) {
+                    alert("Please login first to become a seller");
+                } else {
+                    location.href = "seller-dashboard.html";
+                }
+            });
+
+            // ------------------------------------------------ Logout function ------------------------------------------------
+            $("#logoutbtn").click(function () {
+                localStorage.removeItem("activeuser");
+                checkActiveUser();
+            });
+        });
+    </script>
+
+    <!-- ------------------------------------------------------ JQuery ends ------------------------------------------------------ -->
+
+    <!-- ------------------------------------------------------ AngularJS starts ------------------------------------------------------ -->
+    <script>
+        var module = angular.module("myModule", []);
+        module.controller("myController", function ($scope, $http) {
+
+            // ------------------------------------------------ Do search function ------------------------------------------------
+            $scope.doSearch = function () {
+                if ($scope.txtSearch != null) {
+                    localStorage.setItem("keywordSearched", $scope.txtSearch);
+                    location.href = "product-gallery.html";
+                }
+            }
+
+            // ------------------------------------------------ Home security card function ------------------------------------------------
+            $scope.homeSecurity = function () {
+                    localStorage.setItem("keywordSearched", "home");
+                    location.href = "product-gallery.html";
+            }
+
+            // ------------------------------------------------ School security card function ------------------------------------------------
+            $scope.schoolSecurity = function () {
+                    localStorage.setItem("keywordSearched", "school");
+                    location.href = "product-gallery.html";
+            }
+
+            // ------------------------------------------------ Office security card function ------------------------------------------------
+            $scope.officeSecurity = function () {
+                    localStorage.setItem("keywordSearched", "office");
+                    location.href = "product-gallery.html";
+            }
+        });
+    </script>
+
+    <!-- ------------------------------------------------------ AngularJS ends ------------------------------------------------------ -->
+</head>
+
+<body ng-app="myModule" ng-controller="myController">
+    <!-- -------------------------------------------------------- Navbar -------------------------------------------------------- -->
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid mx-2">
+
+            <a class="navbar-brand" href="index.html">
+                <img src="pics/logo.png" class="d-inline-block align-text-top">
+                Cyber bazaar
+            </a>
+
+
+            <div class="col-md-5 mt-3">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" ng-model="txtSearch">
+                    <button class="btn btn-secondary" type="button" id="button-addon2"
+                        ng-click="doSearch();"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+
+            <form class="d-flex">
+                <a href="cart.html" class="btn btn-secondary">Cart</a>
+                <button type="button" class="btn btn-secondary ms-3" id="sellerLogin">Become a seller</button>
+                <button class="btn btn-secondary ms-3" type="button" id="logoutbtn">Logout</button>
+                <button class="btn btn-secondary ms-3" type="button" data-bs-toggle="modal"
+                    data-bs-target="#signupmodal" id="signupbtn">Sign up</button>
+                <button class="btn btn-secondary ms-3" type="button" data-bs-toggle="modal" data-bs-target="#loginmodal"
+                    id="loginbtn">Login</button>
+            </form>
+
+        </div>
+    </nav>
+
+    <!-- -------------------------------------------------------- Carousal -------------------------------------------------------- -->
+    <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+
+            <div class="carousel-item active">
+                <img src="pics/carousal-1.jpg" class="d-block w-100">
+            </div>
+
+
+            <div class="carousel-item">
+                <img src="pics/carousal-2.jpg.jpg" class="d-block w-100">
+            </div>
+
+
+            <div class="carousel-item">
+                <img src="pics/carousal-3.jpg.jpg" class="d-block w-100">
+            </div>
+
+        </div>
+    </div>
+
+    <!-- -------------------------------------------------------- Our products cards -------------------------------------------------------- -->
+    <div class="row my-2">
+        <h1 class="display-5 text-center">Our products</h1>
+    </div>
+
+    <div class="row mx-2">
+
+        <!-- -------------------------------------------------------- Card 1 -------------------------------------------------------- -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="pics/home-security.jpg">
+                <div class="card-body">
+                    <center>
+                        <button type = "button" class="btn btn-secondary" ng-click="homeSecurity();">Home security</button>
+                    </center>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- -------------------------------------------------------- Card 2 -------------------------------------------------------- -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="pics/school-security.jpg">
+                <div class="card-body">
+                    <center>
+                        <button type = "button" class="btn btn-secondary" ng-click="schoolSecurity();">School security</button>
+                    </center>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- -------------------------------------------------------- Card 3 -------------------------------------------------------- -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="pics/office-security.jpg">
+                <div class="card-body">
+                    <center>
+                        <button type = "button" class="btn btn-secondary" ng-click="officeSecurity();">Office security</button>
+                    </center>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- -------------------------------------------------------- FAQ's section -------------------------------------------------------- -->
+    <div class="row my-2">
+        <h1 class="display-5 text-center">Why cyber security is important</h1>
+    </div>
+
+    <div class="row mx-2">
+
+        <div class="col-md-7 fs-4 px-5 py-3">
+
+            <h1 class="display-5 text-center">
+                Frequently asked questions
+            </h1>
+
+            <br>
+
+            <details>
+                <summary>Why cyber security is important ?</summary>
+                <p>Cybersecurity is crucial in the digital age to protect sensitive information from malicious actors.
+                    It safeguards individuals, businesses, and governments against cyber threats, such as data breaches,
+                    ransomware attacks, and identity theft. Preserving trust in online interactions and securing
+                    critical infrastructures relies on robust cybersecurity measures, ensuring a safer and more
+                    resilient digital ecosystem.</p>
+            </details>
+
+            <br>
+
+            <details>
+                <summary>Why is cyber security neccessary in schools, colleges and offices ?</summary>
+                <p>In schools, colleges, and offices, cybersecurity is essential to shield sensitive data, personal
+                    information, and intellectual property from cyber threats. Safeguarding networks and systems ensures
+                    uninterrupted operations, protects academic and business reputation, and preserves the privacy and
+                    safety of students, staff, and employees in an increasingly digital world.</p>
+            </details>
+
+            <br>
+
+            <details>
+                <summary>What are the cyber security threats now days ?</summary>
+                <p>In today's digital landscape, common cybersecurity threats include phishing attacks, where deceptive
+                    emails aim to steal personal information, and ransomware, which encrypts files until a ransom is
+                    paid. Additionally, data breaches, malware infections, and social engineering exploit human
+                    vulnerabilities, emphasizing the need for robust cybersecurity measures to mitigate risks.</p>
+            </details>
+
+            <br>
+
+            <details>
+                <summary>How we can help you stay safe from these cyber attacks ?</summary>
+                <p>Our comprehensive cybersecurity tools provide robust protection against modern threats. Advanced
+                    antivirus and anti-malware technology defend your devices from harmful software. Firewalls safeguard
+                    networks, while encrypted connections shield sensitive data from interception. Regular updates keep
+                    defenses current, and behavioral analysis helps detect emerging threats, ensuring a secure online
+                    experience.</p>
+            </details>
+
+        </div>
+
+        <div class="col-md-5">
+            <img src="pics/faqs.jpg" class="img-fluid">
+        </div>
+
+    </div>
+
+    <!-- -------------------------------------------------------- Developer details -------------------------------------------------------- -->
+    <div class="row my-2">
+        <h1 class="display-5 text-center">Developed by</h1>
+    </div>
+
+    <div class="row mx-2">
+
+        <!-- Add developer details -->
+
+    </div>
+
+    <!-- -------------------------------------------------------- Map -------------------------------------------------------- -->
+    <div class="row my-2">
+        <h1 class="display-5 text-center">Reach us</h1>
+    </div>
+
+    <div class="row mx-2">
+
+        <!-- Add map and socials -->
+
+    </div>
+
+    <div class="row my-2">
+        <h5 class="text-center">Copyright @cyberbazaar.com 2023</h5>
+    </div>
+
+    <!-- ------------------------------------------------------ Sign up modal ------------------------------------------------------ -->
+    <div class="modal fade" id="signupmodal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Sign up</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+
+                        <div class="mb-4 col-md-10 offset-md-1">
+                            <label for="signuptxtemail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="signuptxtemail" name="signuptxtemail">
+                            <span id="signuperremail">*</span>
+                        </div>
+
+
+                        <div class="mb-4 col-md-10 offset-md-1">
+                            <label for="signuptxtpwd" class="form-label">Password</label>
+                            <div class="row">
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="signuptxtpwd" name="signuptxtpwd">
+                                    <span id="signupshow" class="input-group-text">
+                                        <i id="signupeye" class="fa-solid fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <span id="signuperrpwd">*</span>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="dosignup">Sign up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ------------------------------------------------------ Login modal ------------------------------------------------------ -->
+    <div class="modal fade" id="loginmodal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Login</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-4 col-md-10 offset-md-1">
+                            <label for="logintxtemail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="logintxtemail" name="logintxtemail">
+                            <span id="loginerremail">*</span>
+                        </div>
+                        <div class="mb-4 col-md-10 offset-md-1">
+                            <label for="logintxtpwd" class="form-label">Password</label>
+                            <div class="row">
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="logintxtpwd" name="logintxtpwd">
+                                    <span id="loginshow" class="input-group-text">
+                                        <i id="logineye" class="fa-solid fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="dologin">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
