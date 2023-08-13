@@ -37,8 +37,8 @@ dbCon.connect(function (err) {
 var transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "arora.saksham.k@gmail.com",
-    pass: "zvhwbcctnsnmayxu",
+    user: "sakshamkumar98766@gmail.com",
+    pass: "ipghdugaolcwstdb",
   }
 });
 
@@ -68,7 +68,7 @@ app.get("/dosignup", function (req, resp) {
   var pwd = req.query.pwdentered;
 
   var mailOptions = {
-    from: "arora.saksham.k@gmail.com",
+    from: "sakshamkumar98766@gmail.com",
     to: email,
     subject: "Account has been created on Cyberbazaar.com",
     text: `Welcome ${email}, you have been successfully registed on our website. If not please just ignore this mail. With regards from Cyberbazaar`
@@ -99,7 +99,7 @@ app.get("/dologin", function (req, resp) {
   var pwd = req.query.pwdentered;
 
   var mailOptions = {
-    from: "arora.saksham.k@gmail.com",
+    from: "sakshamkumar98766@gmail.com",
     to: email,
     subject: "Account login on Cyberbazaar.com",
     text: `Your email:- ${email} has been used to login on our website. If not please please check your account activity and if possible change your account password to something secure. With regards from Cyberbazaar`
@@ -347,7 +347,7 @@ app.get("/buy-product", function (req, resp) {
   var email = req.query.email;
 
   var mailOptions = {
-    from: "arora.saksham.k@gmail.com",
+    from: "sakshamkumar98766@gmail.com",
     to: email,
     subject: "Order placed on Cyberbazaar.com",
     text: `Your order has been placed and will reach at your provided address by 4-5 working days. With regards from Cyberbazaar`
